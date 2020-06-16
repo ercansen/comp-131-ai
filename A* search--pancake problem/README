@@ -1,0 +1,129 @@
+# Artificial Intelligence: Homework 2 -- A* Search
+# October 15, 2019
+# Ercan Sen and Kerem San
+# Filename: README
+# Purpose: Explanation of our implementation of pancakes.py
+
+******************************************************************************
+I. PYTHON VERSION USED
+******************************************************************************
+
+We used python3 to implement this assignment.
+
+******************************************************************************
+II. RUN COMMANDS
+******************************************************************************
+
+- Run executable by 'python3 pancakes.py'
+- Prompts user to enter number of pancakes
+- Prompts user to enter the order of pancakes separated with a space
+  (1 being the smallest and num_pancakes being the largest)
+- Checks whether the user enters the correct format of input, that is checks 
+  if the input is an integer, is in range and contains each number in range
+  only once
+
+
+*****************************************************************************
+III. OUR APPROACH
+*****************************************************************************
+
+- Functions defined outside the class: do work on any given list, or 
+	dictionary; not necessarily a member of the class.
+
+- Class Members: 
+	+ num_pancakes: initialized by user input
+	
+
+	+ plate: 1 more than num_pancakes; 
+		determined after user input, used only for heuristic calculation
+	
+	+ initial: initial order of pancakes; initialized by user input
+	
+
+	+ goal_state: For any given n number of pancakes,
+		a list [1, 2, ..., n, (n+1 : the plate)] 
+
+
+	+ frontier: type PriorityQueue from the queue module. Sorts inputs 
+		from highest priority (lowest # -- total cost in our case), 
+		to lowest priority. 
+		PriorityQueue implementation is suitable for our use as it does
+		the sorting based on the highest priority and also makes the front
+		easily accessible
+	
+	++ The PriorityQueue
+	++++ tuple[0]: the priorities (total cost = backward+forward) 
+	++++ tuple[1]: unique_id that starts from 0 and increases 1 whenever 
+		a new thing is added to frontier 
+		tie-braker: if the priorities are the same the one that was
+		most recently added comes later, as desired
+	++++ tuple[2]: dictionary. 
+		dictionary['self']: the sequence (order) of pancakes itself
+		dictionary['prev']: sequences that were previously visited 
+			before arriving to 'self'
+		dictionary['cumulCost']: keeps track of the cumulative 
+				backward cost (no need to keep track of 
+				forward cost, as it is instantaneous)
+
+
+	+ costs_dict: Dictionary. We do not want to add the same sequence two 
+	                          times, but rather keep the least costly one.
+	+++ keys : order of pancakes (Although the order is stored as lists 
+		in our program, keys in this dictionary are tuples, since the keys
+		of a dictionary cannot be immutable; "tuple(list)" is used to 
+		turn the immutable type into mutable)
+	+++ values : priority values (total cost)
+	Before adding to the Frontier, we first check whether the sequence exists 
+	using 'in keys()' and also check if the priority is less than the already
+	existing priority to eliminate repetition and optimize space complexity.
+
+	+ unique_id: Assigned uniquely to each new 3-tuple being added to frontier; 
+			explained in frontier.
+
+
+	+ popped: Dictionary; keys are sequences, values are bool. Determines 
+		whether the given sequence had been popped; coupled with 
+		helper function 'is_popped', helps reduces # steps required for 
+		solution. If a sequence with lower priority (higher cost) exists, 
+		but has been already popped, there is no need to spend time on 
+		removing it from frontier.
+
+- Explanation of Functionality:
+
+ * astar(): adds the initial list to frontier and costs_dict. Loops until the 
+            frontier is empty and gets the highest priority element and expands
+            the flips.
+
+ * expand_flips(): computes the priority of the sequence to be added to the 
+                   frontier.
+
+ 				   If the sequence already exists in costs_dict:
+
+ 				       - If the cost in costs_dict is much greater than that 
+ 				         of the sequence, removes the larger cost from the 
+ 				         frontier. (that larger cost member of frontier might
+ 				         have been already popped out of the queue 
+ 				         --as explained in 'popped'--, so this step can 
+ 				         possibly be skipped). Adds the element with the lower
+ 				         cost to the frontier.
+ 				       - If the cost in costs_dict is much less than that of
+ 				         the sequence, does nothing.
+
+ 				    If the sequence has not been previously added to 
+ 				    costs_dict, adds the sequence to costs_dict.
+
+ 				    Checks whether the highest priority element is equal
+ 				    to goal_state; if so, return success()
+
+ 				    Checks if the frontier is empty, implying that there are no
+ 				    possible solutions left; if so, return failure()
+
+
+*****************************************************************************
+IV. EXTRA CREDIT
+*****************************************************************************
+The code for Uniform Cost Search is almost the same as A* Search. We only
+took out the parts related to heuristic function (and plate, which was
+only used by the heuristic function). Then, instead of minimizing forward +
+backward costs, we only minimized the cumulative sum.
+

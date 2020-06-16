@@ -1,0 +1,72 @@
+Comp 131: AI
+HW 3: Constraint Satisfaction Problem
+October 30, 2019
+Steven Attardo and Ercan Sen
+
+******************************************************************************
+I. PYTHON VERSION USED
+******************************************************************************
+
+We used Python 3.7 to implement this assignment.
+
+******************************************************************************
+II. RUN COMMANDS
+******************************************************************************
+
+To run our program, type the following into the terminal:
+
+python3 sudoku.py [easy(default)/hard/empty]
+
+easy  - The easy puzzle on the assignment
+hard  - The hard puzzle on the assignment
+empty - An empty 9 x 9 board (has many solutions)
+
+After the puzzle is picked or assigned by default, the program first prints the
+initial formation of the sudoku board, and then, after it has been solved, the
+solution for the puzzle.
+
+******************************************************************************
+III. OUR APPROACH
+******************************************************************************
+
+We chose to represent our sudoku board as a 2D numpy array, where the first
+index is the row number, and the second the column number. We represent the
+already assigned squares with their known values, and the empty squares with 0.
+
+At each search node, calc_possibilities() applies all the constraints to the
+board state (alldiff on rows, columns, and 3 x 3 squares with possible values
+1-9) and trims down the domains of the empty squares to leave only the
+remaining possible options. The program then uses the Minimum Remaining Value
+principle and selects the empty square with the fewest possible options in its
+domain. If there is a single value left, it assigns that value. If this is the
+case at every iteration of the program (i.e. the square with the minimum
+remaining value always has a single option until the program successfully
+terminates), then the approach explained so far solves the sudoku puzzle (this
+was the case for the easy puzzle).
+
+Next, we implemented a backtracking search. When the program cannot make a
+definite decision (i.e. when the square with MRV has > 1 possibility), it
+makes a random choice and assigns one of the possibilities to the square. The
+function, backtracking(), then recursively expands upon the decisions it makes,
+and if it ever fails (makes a faulty assignment that eventually results in an
+empty possibility set for another square) it backtracks its steps and explores
+another path. With this approach, our program was able to solve the hard puzzle
+as well. The empty board option has many possible solutions and lets the
+algorithm find one with no known squares to narrow the search.
+
+******************************************************************************
+IV. ADDITIONAL COMMENTS
+******************************************************************************
+
+To test our program on additional cases, we included hidden command line
+options empty4 (16 x 16 board), and empty5 (25 x 25 board) to test much larger
+search spaces. Although the 16 x 16 case works similarly to the 9 x 9 one, the
+25 x 25 one occasionally cannot produce a solution within a reasonable time
+because of the vastly increased search space, so was left commented out.
+
+In the select_variable() function, the order of 'square-remaining value' pairs
+is randomized before being sorted based on the number of remaining values. This
+way, we randomize the assignment order of squares with equal number of
+possibilities. Otherwise the tied squares would be assigned values in
+left-to-right and top-to-bottom order. This is especially true in emptier
+puzzles where many squares have the same number of possibilities.

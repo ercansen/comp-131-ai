@@ -1,0 +1,100 @@
+Artificial Intelligence: Homework 1 - Behavior Trees
+September 26, 2019
+Casey Culligan and Ercan Sen
+Filename: README
+Purpose: Explanation of our implementation of roomba.py
+
+******************************************************************************
+I. PYTHON VERSION USED
+******************************************************************************
+
+We used python3 to implement this assignment.
+
+******************************************************************************
+II. RUN COMMANDS
+******************************************************************************
+
+To run our program, type the following into the terminal:
+
+python3 roomba.py
+
+Our program will prompt you to enter either S, G, N, or Q. These commands are
+explained below here:
+
+S - Spot Clean. This command will change the blackboard value "SPOT" to True,
+which will then prompt the Roomba to execute the corresponding branch of the
+behavior tree. Upon finishing this command, "SPOT" is set back to False.
+
+G - General Clean. This command will change the blackboard value "GENERAL"
+to True, which will then prompt the Roomba to execute the corresponding
+branch of the behavior tree. If, upon performing a general cleaning, the
+battery level matches a random number in the range 65-100, then our program
+will set the value of "DUSTY_SPOT" in the blackboard to True, and the Roomba
+will perform a Dusty Spot Cleaning. The random number was implemented in order 
+to mimic the randomness of Roomba encountering a dusty spot along the cleaning 
+process. Once it is done, "DUSTY_SPOT" will be set back to False. 
+(NOTE: 65 was chosen because this is the minimum battery level required for 
+the Roomba to be able to perform a full cycle of a Dusty Spot Cleaning). 
+The Roomba will continue to execute a General Cleaning until its 
+battery level dips below 30%, and when this happens, "GENERAL" is set back
+to False in the blackboard and the Roomba docks itself so that it can charge.
+
+N - Do Nothing. This command tells the Roomba to be idle. It will wait
+for further instruction from the user before attempting to do any cleaning.
+
+Q - Quit. The user can exit from our program entirely by identifying this
+command.
+
+All other input - If the user enters invalid input, we instruct them to 
+enter a valid command.
+
+******************************************************************************
+III. OUR APPROACH
+******************************************************************************
+
+We chose to use a Python class to represent our Roomba. Within this class,
+we represented the blackboard as a Python dictionary (i.e., a set of key-value
+pairs). Within this class, we have both getter and setter functions to access
+and modify these blackboard values. In addition, we have functions that are
+called when the Roomba's battery level dips below 30% (which we check
+by calling our ensureBatteryFull(self) function): findHome(self), goHome(self),
+and dock(self). Lastly, we have a function called executeBehaviorTree(self,
+spotVal, generalVal), which executes various branches of the behavior tree 
+depending on the input specified by the user.
+
+We implemented a function outside of the Roomba class (userInteraction()) that
+takes in user input and tells the Roomba what to do:
+
+1. If the user enters a S, it will perform a Spot Cleaning as explained in 
+Section II above. This cleaning lasts for a cycle of 20 seconds. Since this 
+cleaning is more intense than general cleaning, it will use up more of the 
+battery of the Roomba (that is, it decreases the battery by 1% for each second
+that passes). If the battery gets below 30% at any point during this cleaning,
+the Roomba finds the best path home, follows that path, docks, and charges 
+until its battery is full. Once it has full battery, it picks up on the Spot
+Cleaning wherever it left off. Upon completing Spot Cleaning, the Roomba checks 
+to see whether its battery is below 30% and, if it is, charges according to the
+previously-explained procedure.
+
+2. If the user enters a G, it will perform a General Cleaning as explained in
+Section II above. If, during General Cleaning, the Roomba encounters a Dusty
+Spot, then it will perform a Dusty Spot Cleaning that takes a total of 35
+seconds and decreases the battery level by 1% each second, and, if it 
+possesses enough battery at the end of this, will continue with General 
+Cleaning, which decreases the battery level by .5% each second. If at any 
+point during General Cleaning the Roomba's battery dips below 30%, this 
+cleaning cycle will have "SUCCEEDED" (and the "state" variable in the Roomba 
+class will be set to "SUCCEEDED"). Then, before doing any other sort of 
+cleaning, the Roomba will charge according to the previously-explained 
+procedure.
+
+3. If the user enters an N, it will Do Nothing. We have defined doing nothing
+as decreasing the battery level of the Roomba by .1% each time the user
+enters this command.
+
+4. If the user enters a Q, the program will end, and no more commands can
+be entered.
+
+5. If the user does not enter any of the above commands, then we prompt them
+to enter a valid input. Nothing happens with the Roomba regardless of the
+amount of times they enter invalid input.
